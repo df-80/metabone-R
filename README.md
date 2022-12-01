@@ -10,7 +10,7 @@ The purpose of these R files is to analyse the metabolomic data of individuals p
 * Total BMD
 * Lumbar Spine BMD
 * Femoral Neck BMD
-* Total Hip
+* Total Hip BMD
 
 ## Methods used
 
