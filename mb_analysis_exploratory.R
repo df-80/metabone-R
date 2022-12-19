@@ -45,11 +45,11 @@ tmp_ds <- sapply(tmp_ds, as.numeric)
 # Apply corrFunc to all rows of vars
 corrs <- do.call(rbind, mapply(corrFunc, vars[,1], vars[,2], MoreArgs=list(data=tmp_ds, method="pearson"), SIMPLIFY=FALSE))
 pearson_result <- corrs[2:5]
-write.csv(pearson_result, "metabone_results/pearsonFractureStatusvsMetabolites.csv", row.names = TRUE)
+write.csv(pearson_result, "results/pearsonFractureStatusvsMetabolites.csv", row.names = TRUE)
 # Apply bonferroni correction ???
 # corrs[4] <- p.adjust(corrs$p.value, method = "bonferroni", n = length(corrs$p.value))
 # pearson_result <- corrs[2:5]
-# write.csv(pearson_result, "metabone_results/mw_kw/pearsonFractureStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
+# write.csv(pearson_result, "results/mw_kw/pearsonFractureStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
 
 ## Mann-Whitney/Kruskall Wallis Analysis
 ## - p-value < 0.05 -> Correlation is significant
@@ -62,10 +62,10 @@ tmp_ds <- sapply(tmp_ds, as.numeric)
 # Apply corrFunc to all rows of vars
 corrs <- do.call(rbind, mapply(mwFunc, vars[,2], vars[,1], MoreArgs=list(data=tmp_ds), SIMPLIFY=FALSE))
 mann_whitney_result <- corrs[c(1,3)]
-write.csv(mann_whitney_result, "metabone_results/mw_kw/FractureStatusvsMetabolites.csv", row.names = TRUE)
+write.csv(mann_whitney_result, "results/mw_kw/FractureStatusvsMetabolites.csv", row.names = TRUE)
 # Apply bonferroni correction ???
 # mann_whitney_result$p.value <- p.adjust(mann_whitney_result$p.value, method = "bonferroni", n = length(mann_whitney_result$p.value))
-# write.csv(mann_whitney_result, "metabone_results/mw_kw/FractureStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
+# write.csv(mann_whitney_result, "results/mw_kw/FractureStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
 
 ## Apply Kruskall-Wallis on Status_BMD [7]
 vars <- data.frame(v1=names(ds[7]), v2=names(ds[,23:ncol(ds)]))
@@ -74,10 +74,10 @@ tmp_ds <- sapply(tmp_ds, as.numeric)
 # Apply corrFunc to all rows of vars
 corrs <- do.call(rbind, mapply(kwFunc, vars[,2], vars[,1], MoreArgs=list(data=tmp_ds), SIMPLIFY=FALSE))
 kruskal_wallis_result <- corrs[2:3]
-write.csv(kruskal_wallis_result, "metabone_results/mw_kw/BMDStatusvsMetabolites.csv", row.names = TRUE)
+write.csv(kruskal_wallis_result, "results/mw_kw/BMDStatusvsMetabolites.csv", row.names = TRUE)
 # Apply bonferroni correction ???
 # kruskal_wallis_result$p.value <- p.adjust(kruskal_wallis_result$p.value, method = "bonferroni", n = length(kruskal_wallis_result$p.value))
-# write.csv(kruskal_wallis_result, "metabone_results/mw_kw/BMDStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
+# write.csv(kruskal_wallis_result, "results/mw_kw/BMDStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
 
 ## Apply Kruskall-Wallis on LS Status [10]
 vars <- data.frame(v1=names(ds[10]), v2=names(ds[,23:ncol(ds)]))
@@ -86,10 +86,10 @@ tmp_ds <- sapply(tmp_ds, as.numeric)
 # Apply corrFunc to all rows of vars
 corrs <- do.call(rbind, mapply(kwFunc, vars[,2], vars[,1], MoreArgs=list(data=tmp_ds), SIMPLIFY=FALSE))
 kruskal_wallis_result <- corrs[c(2:3)]
-write.csv(kruskal_wallis_result, "metabone_results/mw_kw/LsStatusvsMetabolites.csv", row.names = TRUE)
+write.csv(kruskal_wallis_result, "results/mw_kw/LsStatusvsMetabolites.csv", row.names = TRUE)
 # Apply bonferroni correction ???
 # kruskal_wallis_result$p.value <- p.adjust(kruskal_wallis_result$p.value, method = "bonferroni", n = length(kruskal_wallis_result$p.value))
-# write.csv(kruskal_wallis_result, "metabone_results/mw_kw/LsStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
+# write.csv(kruskal_wallis_result, "results/mw_kw/LsStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
 
 ## Apply Kruskall-Wallis on FN Status [12]
 vars <- data.frame(v1=names(ds[12]), v2=names(ds[,23:ncol(ds)]))
@@ -98,10 +98,10 @@ tmp_ds <- sapply(tmp_ds, as.numeric)
 # Apply corrFunc to all rows of vars
 corrs <- do.call(rbind, mapply(kwFunc, vars[,2], vars[,1], MoreArgs=list(data=tmp_ds), SIMPLIFY=FALSE))
 kruskal_wallis_result <- corrs[2:3]
-write.csv(kruskal_wallis_result, "metabone_results/mw_kw/FnStatusvsMetabolites.csv", row.names = TRUE)
+write.csv(kruskal_wallis_result, "results/mw_kw/FnStatusvsMetabolites.csv", row.names = TRUE)
 # Apply bonferroni correction ???
 # kruskal_wallis_result$p.value <- p.adjust(kruskal_wallis_result$p.value, method = "bonferroni", n = length(kruskal_wallis_result$p.value))
-# write.csv(kruskal_wallis_result, "metabone_results/mw_kw/FnStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
+# write.csv(kruskal_wallis_result, "results/mw_kw/FnStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
 
 ## Apply Kruskall-Wallis on TH Status [14]
 vars <- data.frame(v1=names(ds[14]), v2=names(ds[,23:ncol(ds)]))
@@ -110,10 +110,10 @@ tmp_ds <- sapply(tmp_ds, as.numeric)
 # Apply corrFunc to all rows of vars
 corrs <- do.call(rbind, mapply(kwFunc, vars[,2], vars[,1], MoreArgs=list(data=tmp_ds), SIMPLIFY=FALSE))
 kruskal_wallis_result <- corrs[2:3]
-write.csv(kruskal_wallis_result, "metabone_results/mw_kw/ThStatusvsMetabolites.csv", row.names = TRUE)
+write.csv(kruskal_wallis_result, "results/mw_kw/ThStatusvsMetabolites.csv", row.names = TRUE)
 # Apply bonferroni correction ???
 # kruskal_wallis_result$p.value <- p.adjust(kruskal_wallis_result$p.value, method = "bonferroni", n = length(kruskal_wallis_result$p.value))
-# write.csv(kruskal_wallis_result, "metabone_results/mw_kw/ThStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
+# write.csv(kruskal_wallis_result, "results/mw_kw/ThStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
 
 
 ## Plot Boxplots ##########################################################################################
