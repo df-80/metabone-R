@@ -23,7 +23,7 @@ corrFunc <- function(var1, var2, data, method) {
 }
 
 # Filter by Gender - get Males only
-ds <- ds[Gender == 'Male',]
+ds <- ds[ds$Gender == 'Male',]
 cat("Rows:", nrow(ds),", Columns:", ncol(ds),"\n")
 
 ## Start Analysing data by applying MW or KW ############################################################
@@ -42,7 +42,7 @@ write.csv(shapiro_result, "metabone-R/results/gender/males/shapiro.csv", row.nam
 ## Pearson's Correlation Analysis
 ##  - p-value < 0.05 -> Correlation is significant
 ##  - p-value > 0.05 -> No correlation
-nd_ds <- ds[, c(1:22, 24, 28, 29, 34, 36, 40:42, 48, 50, 52:54, 57, 58, 61, 62, 136:141, 143, 145, 147, 151:153, 158, 160:162, 169, 182, 186, 187, 190)]
+nd_ds <- ds[, c(1:22, 30:32, 34, 37, 64:65, 71:82, 84, 86:91, 94:102, 107:110, 113:114, 121, 149, 156:157, 163, 170, 177, 179:180, 183)]
 vars <- data.frame(v1=names(nd_ds[8]), v2=names(nd_ds[,23:ncol(nd_ds)]))
 tmp_ds <- nd_ds[,c(8, 23:ncol(nd_ds))]
 tmp_ds <- sapply(tmp_ds, as.numeric)
@@ -90,7 +90,7 @@ tmp_ds <- sapply(tmp_ds, as.numeric)
 # Apply corrFunc to all rows of vars
 corrs <- do.call(rbind, mapply(kwFunc, vars[,2], vars[,1], MoreArgs=list(data=tmp_ds), SIMPLIFY=FALSE))
 kruskal_wallis_result <- corrs[c(2:3)]
-write.csv(kruskal_wallis_result, "results/gender/males/kw/LsStatusvsMetabolites.csv", row.names = TRUE)
+write.csv(kruskal_wallis_result, "metabone-R/results/gender/males/kw/LsStatusvsMetabolites.csv", row.names = TRUE)
 # Apply bonferroni correction ???
 # kruskal_wallis_result$p.value <- p.adjust(kruskal_wallis_result$p.value, method = "bonferroni", n = length(kruskal_wallis_result$p.value))
 # write.csv(kruskal_wallis_result, "metabone-R/results/gender/males/kw/LsStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
@@ -139,36 +139,49 @@ ggplot(data = ds.m, aes(x=Status_Fractures, y=value)) +
   geom_boxplot(aes(fill = Status_Fractures)) + facet_wrap( ~ variable, ncol = 8, scales="free") + ggtitle("Status Fractures vs Metabolites - 3")
 
 ## Most significant metabolites vs Status Fractures (without outliers) ####################################
-## Status Fractures vs Acetate ############################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = Acetate, na.rm = TRUE, fill = Status_Fractures)) +
+## Status Fractures vs Gly ################################################################################
+p <- ggplot(ds, aes(x = Status_Fractures, y = Gly, na.rm = TRUE, fill = Status_Fractures)) +
 #  geom_boxplot( , na.rm = TRUE) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Acetate, c(0, 0.9) * 1.1, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "Acetate") +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Gly, c(0, 0.9) * 1.1, na.rm = TRUE)) +
   theme(
     text = element_text(size = 20),
     plot.title = element_text(hjust = 0.5),
     panel.background = element_blank(),
     axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs Acetate", x = "Status_Fractures", y = "Acetate")
+  labs(title = "Status_Fractures vs Gly", x = "Status_Fractures", y = "Gly")
 p
 
-kruskal.test(Acetate, Status_Fractures, rm.na=TRUE)
-wilcox.test(Acetate ~ Status_Fractures, data = ds, exact = FALSE)
+kruskal.test(ds$Gly, ds$Status_Fractures, rm.na=TRUE)
+wilcox.test(Gly ~ Status_Fractures, data = ds, exact = FALSE)
 
-## Status Fractures vs Lactate ############################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = Lactate, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Lactate, c(0, 0.9) * 1.05, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "Lactate") +
+## Status Fractures vs Total.CE ###########################################################################
+p <- ggplot(ds, aes(x = Status_Fractures, y = Total.CE, na.rm = TRUE, fill = Status_Fractures)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Total.CE, c(0, 0.9) * 1.11, na.rm = TRUE)) +
   theme(
     text = element_text(size = 20),
     plot.title = element_text(hjust = 0.5),
     panel.background = element_blank(),
     axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs Lactate", x = "Status_Fractures", y = "Lactate")
+  labs(title = "Status_Fractures vs Total.CE", x = "Status_Fractures", y = "Total.CE")
 p
 
-kruskal.test(Lactate, Status_Fractures, rm.na=TRUE)
-wilcox.test(Lactate ~ Status_Fractures, data = ds, exact = FALSE)
+kruskal.test(ds$Total.CE, ds$Status_Fractures, rm.na=TRUE)
+wilcox.test(Total.CE ~ ds$Status_Fractures, data = ds, exact = FALSE)
+
+## Status Fractures vs Sphingomyelins #####################################################################
+p <- ggplot(ds, aes(x = Status_Fractures, y = Sphingomyelins, na.rm = TRUE, fill = Status_Fractures)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Sphingomyelins, c(0, 0.9) * 1.05, na.rm = TRUE)) +
+  labs(x = "Status_Fractures", y = "Sphingomyelins") +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5),
+    panel.background = element_blank(),
+    axis.line = element_line("darkgrey")) +
+  labs(title = "Status_Fractures vs Sphingomyelins", x = "Status_Fractures", y = "Sphingomyelins")
+p
+
+kruskal.test(ds$Sphingomyelins, ds$Status_Fractures, rm.na=TRUE)
+wilcox.test(Sphingomyelins ~ Status_Fractures, data = ds, exact = FALSE)
 
 ## Status Fractures vs Glucose ############################################################################
 p <- ggplot(ds, aes(x = Status_Fractures, y = Glucose, na.rm = TRUE, fill = Status_Fractures)) +
@@ -182,263 +195,83 @@ p <- ggplot(ds, aes(x = Status_Fractures, y = Glucose, na.rm = TRUE, fill = Stat
   labs(title = "Status_Fractures vs Glucose", x = "Status_Fractures", y = "Glucose")
 p
 
-kruskal.test(Glucose, Status_Fractures, rm.na=TRUE)
+kruskal.test(ds$Glucose, ds$Status_Fractures, rm.na=TRUE)
 wilcox.test(Glucose ~ Status_Fractures, data = ds, exact = FALSE)
 
-## Status Fractures vs Gly ################################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = Gly, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Gly, c(0, 0.9) * 1.11, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "Gly") +
+## Status Fractures vs Total.C ############################################################################
+p <- ggplot(ds, aes(x = Status_Fractures, y = Total.C, na.rm = TRUE, fill = Status_Fractures)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Total.C, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  labs(x = "Status_Fractures", y = "Total.C") +
   theme(
     text = element_text(size = 20),
     plot.title = element_text(hjust = 0.5),
     panel.background = element_blank(),
     axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs Gly", x = "Status_Fractures", y = "Gly")
+  labs(title = "Status_Fractures vs Total.C", x = "Status_Fractures", y = "Total.C")
 p
 
-kruskal.test(Gly, Status_Fractures, rm.na=TRUE)
-wilcox.test(Gly ~ Status_Fractures, data = ds, exact = FALSE)
+kruskal.test(ds$Total.C, ds$Status_Fractures, rm.na=TRUE)
+wilcox.test(Total.C ~ Status_Fractures, data = ds, exact = FALSE)
 
-## Status Fractures vs DHA ################################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = DHA, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$DHA, c(0, 0.9) * 1.1, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "DHA") +
+## Status Fractures vs Total.FC ############################################################################
+p <- ggplot(ds, aes(x = Status_Fractures, y = Total.FC, na.rm = TRUE, fill = Status_Fractures)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Total.FC, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  labs(x = "Status_Fractures", y = "Total.FC") +
   theme(
     text = element_text(size = 20),
     plot.title = element_text(hjust = 0.5),
     panel.background = element_blank(),
     axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs DHA", x = "Status_Fractures", y = "DHA")
+  labs(title = "Status_Fractures vs Total.FC", x = "Status_Fractures", y = "Total.FC")
 p
 
-kruskal.test(DHA, Status_Fractures, rm.na=TRUE)
-wilcox.test(DHA ~ Status_Fractures, data = ds, exact = FALSE)
+kruskal.test(ds$Total.FC, ds$Status_Fractures, rm.na=TRUE)
+wilcox.test(Total.FC ~ Status_Fractures, data = ds, exact = FALSE)
 
-## Status Fractures vs GlycA ##############################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = GlycA, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$GlycA, c(0, 0.9) * 1.1, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "GlycA") +
+## Status Fractures vs ApoB ###############################################################################
+p <- ggplot(ds, aes(x = Status_Fractures, y = ApoB, na.rm = TRUE, fill = Status_Fractures)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$ApoB, c(0, 0.9) * 1.1, na.rm = TRUE)) +
+  labs(x = "Status_Fractures", y = "ApoB") +
   theme(
     text = element_text(size = 20),
     plot.title = element_text(hjust = 0.5),
     panel.background = element_blank(),
     axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs GlycA", x = "Status_Fractures", y = "GlycA")
+  labs(title = "Status_Fractures vs ApoB", x = "Status_Fractures", y = "ApoB")
 p
 
-kruskal.test(GlycA, Status_Fractures, rm.na=TRUE)
-wilcox.test(GlycA ~ Status_Fractures, data = ds, exact = FALSE)
+kruskal.test(ds$ApoB, ds$Status_Fractures, rm.na=TRUE)
+wilcox.test(ApoB ~ Status_Fractures, data = ds, exact = FALSE)
 
-## Status Fractures vs Phosphatidylc ######################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = Phosphatidylc, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Phosphatidylc, c(0, 0.9) * 1.11, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "Phosphatidylc") +
+## Status Fractures vs Total.L ############################################################################
+p <- ggplot(ds, aes(x = Status_Fractures, y = Total.L, na.rm = TRUE, fill = Status_Fractures)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Total.L, c(0, 0.9) * 1.1, na.rm = TRUE)) +
+  labs(x = "Status_Fractures", y = "Total.L") +
   theme(
     text = element_text(size = 20),
     plot.title = element_text(hjust = 0.5),
     panel.background = element_blank(),
     axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs Phosphatidylc", x = "Status_Fractures", y = "Phosphatidylc")
+  labs(title = "Status_Fractures vs Total.L", x = "Status_Fractures", y = "Total.L")
 p
 
-kruskal.test(Phosphatidylc, Status_Fractures, rm.na=TRUE)
-wilcox.test(Phosphatidylc ~ Status_Fractures, data = ds, exact = FALSE)
+kruskal.test(ds$Total.L, ds$Status_Fractures, rm.na=TRUE)
+wilcox.test(Total.L ~ Status_Fractures, data = ds, exact = FALSE)
 
-## Status Fractures vs Omega.3 ############################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = Omega.3, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Omega.3, c(0, 0.9) * 1.10, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "Omega.3") +
+## Status Fractures vs Omega.6 ############################################################################
+p <- ggplot(ds, aes(x = Status_Fractures, y = Omega.6, na.rm = TRUE, fill = Status_Fractures)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Omega.6, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  labs(x = "Status_Fractures", y = "Omega.6") +
   theme(
     text = element_text(size = 20),
     plot.title = element_text(hjust = 0.5),
     panel.background = element_blank(),
     axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs Omega.3", x = "Status_Fractures", y = "Omega.3")
+  labs(title = "Status_Fractures vs Omega.6", x = "Status_Fractures", y = "Omega.6")
 p
 
-kruskal.test(Omega.3, Status_Fractures, rm.na=TRUE)
-wilcox.test(Omega.3 ~ Status_Fractures, data = ds, exact = FALSE)
-
-## Status Fractures vs Unsaturation #######################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = Unsaturation, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Unsaturation, c(0, 0.9) * 1.11, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "Unsaturation") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs Unsaturation", x = "Status_Fractures", y = "Unsaturation")
-p
-
-kruskal.test(Unsaturation, Status_Fractures, rm.na=TRUE)
-wilcox.test(Unsaturation ~ Status_Fractures, data = ds, exact = FALSE)
-
-## Status Fractures vs Ala ################################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = Ala, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Ala, c(0, 0.9) * 1.05, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "Ala") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs Ala", x = "Status_Fractures", y = "Ala")
-p
-
-kruskal.test(Ala, Status_Fractures, rm.na=TRUE)
-wilcox.test(Ala ~ Status_Fractures, data = ds, exact = FALSE)
-
-## Status Fractures vs Phosphoglyc ########################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = Phosphoglyc, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Phosphoglyc, c(0, 0.9) * 1.11, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "Phosphoglyc") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs Phosphoglyc", x = "Status_Fractures", y = "Phosphoglyc")
-p
-
-kruskal.test(Phosphoglyc, Status_Fractures, rm.na=TRUE)
-wilcox.test(Phosphoglyc ~ Status_Fractures, data = ds, exact = FALSE)
-
-## Status Fractures vs Cholines ########################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = Cholines, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Cholines, c(0, 0.9) * 1.11, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "Cholines") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs Cholines", x = "Status_Fractures", y = "Cholines")
-p
-
-kruskal.test(Cholines, Status_Fractures, rm.na=TRUE)
-wilcox.test(Cholines ~ Status_Fractures, data = ds, exact = FALSE)
-
-## Status Fractures vs XL.HDL.L ########################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = XL.HDL.L, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$XL.HDL.L, c(0, 0.9) * 1.10, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "XL.HDL.L") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs XL.HDL.L", x = "Status_Fractures", y = "XL.HDL.L")
-p
-
-kruskal.test(XL.HDL.L, Status_Fractures, rm.na=TRUE)
-wilcox.test(XL.HDL.L ~ Status_Fractures, data = ds, exact = FALSE)
-
-## Status Fractures vs Glycerol ###########################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = Glycerol, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Glycerol, c(0, 0.9) * 1.08, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "Glycerol") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs Glycerol", x = "Status_Fractures", y = "Glycerol")
-p
-
-kruskal.test(Glycerol, Status_Fractures, rm.na=TRUE)
-wilcox.test(Glycerol ~ Status_Fractures, data = ds, exact = FALSE)
-
-## Status Fractures vs M.HDL.FC ###########################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = M.HDL.FC, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$M.HDL.FC, c(0, 0.9) * 1.1, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "M.HDL.FC") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs M.HDL.FC", x = "Status_Fractures", y = "M.HDL.FC")
-p
-
-kruskal.test(M.HDL.FC, Status_Fractures, rm.na=TRUE)
-wilcox.test(M.HDL.FC ~ Status_Fractures, data = ds, exact = FALSE)
-
-## Status Fractures vs XL.HDL.PL ##########################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = XL.HDL.PL, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$XL.HDL.PL, c(0, 0.9) * 1.08, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "XL.HDL.PL") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs XL.HDL.PL", x = "Status_Fractures", y = "XL.HDL.PL")
-p
-
-kruskal.test(XL.HDL.PL, Status_Fractures, rm.na=TRUE)
-wilcox.test(XL.HDL.PL ~ Status_Fractures, data = ds, exact = FALSE)
-
-## Status Fractures vs LA #################################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = LA, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$LA, c(0, 0.9) * 1.11, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "LA") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs LA", x = "Status_Fractures", y = "LA")
-p
-
-kruskal.test(LA, Status_Fractures, rm.na=TRUE)
-wilcox.test(LA ~ Status_Fractures, data = ds, exact = FALSE)
-
-## Status Fractures vs L.HDL.PL ###########################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = L.HDL.PL, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$L.HDL.PL, c(0, 0.9) * 1.1, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "L.HDL.PL") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs L.HDL.PL", x = "Status_Fractures", y = "L.HDL.PL")
-p
-
-kruskal.test(L.HDL.PL, Status_Fractures, rm.na=TRUE)
-wilcox.test(L.HDL.PL ~ Status_Fractures, data = ds, exact = FALSE)
-
-## Status Fractures vs M.HDL.PL ###########################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = M.HDL.PL, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$M.HDL.PL, c(0, 0.9) * 1.1, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "M.HDL.PL") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs M.HDL.PL", x = "Status_Fractures", y = "M.HDL.PL")
-p
-
-kruskal.test(M.HDL.PL, Status_Fractures, rm.na=TRUE)
-wilcox.test(M.HDL.PL ~ Status_Fractures, data = ds, exact = FALSE)
-
-## Status Fractures vs HDL.PL #############################################################################
-p <- ggplot(ds, aes(x = Status_Fractures, y = HDL.PL, na.rm = TRUE, fill = Status_Fractures)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$HDL.PL, c(0, 0.9) * 1.11, na.rm = TRUE)) +
-  labs(x = "Status_Fractures", y = "HDL.PL") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_Fractures vs HDL.PL", x = "Status_Fractures", y = "HDL.PL")
-p
-
-kruskal.test(HDL.PL, Status_Fractures, rm.na=TRUE)
-wilcox.test(HDL.PL ~ Status_Fractures, data = ds, exact = FALSE)
+kruskal.test(ds$Omega.6, ds$Status_Fractures, rm.na=TRUE)
+wilcox.test(Omega.6 ~ Status_Fractures, data = ds, exact = FALSE)
 
 
 ## Status BMD #############################################################################################
@@ -458,9 +291,105 @@ ggplot(data = ds.m, aes(x=Status_BMD, y=value)) +
   geom_boxplot(aes(fill = Status_BMD)) + facet_wrap( ~ variable, ncol = 8, scales="free") + ggtitle("Status BMD vs Metabolites - 3")
 
 ## Most significant metabolites vs Status BMD (without outliers) ##########################################
+## Status BMD vs Sphingomyelins ###########################################################################
+p <- ggplot(ds, aes(x = Status_BMD, y = Sphingomyelins, na.rm = TRUE, fill = Status_BMD)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Sphingomyelins, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  labs(x = "Status_BMD", y = "Sphingomyelins") +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5),
+    panel.background = element_blank(),
+    axis.line = element_line("darkgrey")) +
+  labs(title = "Status_BMD vs Sphingomyelins", x = "Status_BMD", y = "Sphingomyelins")
+p
+
+by(ds$Sphingomyelins, ds$Status_BMD, shapiro.test)
+kruskal.test(ds$Sphingomyelins, ds$Status_BMD, rm.na=TRUE)
+pairwise.wilcox.test(ds$Sphingomyelins, ds$Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+
+## Status BMD vs Gly ######################################################################################
+p <- ggplot(ds, aes(x = Status_BMD, y = Gly, na.rm = TRUE, fill = Status_BMD)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Gly, c(0, 0.9) * 1.1, na.rm = TRUE)) +
+  labs(x = "Status_BMD", y = "Gly") +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5),
+    panel.background = element_blank(),
+    axis.line = element_line("darkgrey")) +
+  labs(title = "Status_BMD vs Gly", x = "Status_BMD", y = "Gly")
+p
+
+by(ds$Gly, ds$Status_BMD, shapiro.test)
+kruskal.test(ds$Gly, ds$Status_BMD, rm.na=TRUE)
+pairwise.wilcox.test(ds$Gly, ds$Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+
+## Status BMD vs Total.C ##################################################################################
+p <- ggplot(ds, aes(x = Status_BMD, y = Total.C, na.rm = TRUE, fill = Status_BMD)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Total.C, c(0, 0.9) * 1.05, na.rm = TRUE)) +
+  labs(x = "Status_BMD", y = "Total.C") +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5),
+    panel.background = element_blank(),
+    axis.line = element_line("darkgrey")) +
+  labs(title = "Status_BMD vs Total.C", x = "Status_BMD", y = "Total.C")
+p
+
+by(ds$Total.C, ds$Status_BMD, shapiro.test)
+kruskal.test(ds$Total.C, ds$Status_BMD, rm.na=TRUE)
+pairwise.wilcox.test(ds$Total.C, ds$Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+
+## Status BMD vs ApoB #####################################################################################
+p <- ggplot(ds, aes(x = Status_BMD, y = ApoB, na.rm = TRUE, fill = Status_BMD)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$ApoB, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  labs(x = "Status_BMD", y = "ApoB") +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5),
+    panel.background = element_blank(),
+    axis.line = element_line("darkgrey")) +
+  labs(title = "Status_BMD vs ApoB", x = "Status_BMD", y = "ApoB")
+p
+
+by(ds$ApoB, ds$Status_BMD, shapiro.test)
+kruskal.test(ds$ApoB, ds$Status_BMD, rm.na=TRUE)
+pairwise.wilcox.test(ds$ApoB, ds$Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+
+## Status BMD vs Glycerol ################################################################################
+p <- ggplot(ds, aes(x = Status_BMD, y = Glycerol, na.rm = TRUE, fill = Status_BMD)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Glycerol, c(0, 0.9) * 1.10, na.rm = TRUE)) +
+  labs(x = "Status_BMD", y = "Glycerol") +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5),
+    panel.background = element_blank(),
+    axis.line = element_line("darkgrey")) +
+  labs(title = "Status_BMD vs Glycerol", x = "Status_BMD", y = "Glycerol")
+p
+
+by(ds$Glycerol, ds$Status_BMD, shapiro.test)
+kruskal.test(ds$Glycerol, ds$Status_BMD, rm.na=TRUE)
+pairwise.wilcox.test(ds$Glycerol, ds$Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+
+## Status BMD vs Glucose ##################################################################################
+p <- ggplot(ds, aes(x = Status_BMD, y = Glucose, na.rm = TRUE, fill = Status_BMD)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Glucose, c(0, 0.9) * 1.05, na.rm = TRUE)) +
+  labs(x = "Status_BMD", y = "Glucose") +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5),
+    panel.background = element_blank(),
+    axis.line = element_line("darkgrey")) +
+  labs(title = "Status_BMD vs Glucose", x = "Status_BMD", y = "Glucose")
+p
+
+by(ds$Glucose, ds$Status_BMD, shapiro.test)
+kruskal.test(ds$Glucose, ds$Status_BMD, rm.na=TRUE)
+pairwise.wilcox.test(ds$Glucose, ds$Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+
 ## Status BMD vs His ######################################################################################
 p <- ggplot(ds, aes(x = Status_BMD, y = His, na.rm = TRUE, fill = Status_BMD)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$His, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$His, c(0, 0.9) * 1.06, na.rm = TRUE)) +
   labs(x = "Status_BMD", y = "His") +
   theme(
     text = element_text(size = 20),
@@ -470,45 +399,13 @@ p <- ggplot(ds, aes(x = Status_BMD, y = His, na.rm = TRUE, fill = Status_BMD)) +
   labs(title = "Status_BMD vs His", x = "Status_BMD", y = "His")
 p
 
-by(His, Status_BMD, shapiro.test)
-kruskal.test(His, Status_BMD, rm.na=TRUE)
-pairwise.wilcox.test(His, Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+by(ds$His, ds$Status_BMD, shapiro.test)
+kruskal.test(ds$His, ds$Status_BMD, rm.na=TRUE)
+pairwise.wilcox.test(ds$His, ds$Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
 
-## Status BMD vs Val ######################################################################################
-p <- ggplot(ds, aes(x = Status_BMD, y = Val, na.rm = TRUE, fill = Status_BMD)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Val, c(0, 0.9) * 1.1, na.rm = TRUE)) +
-  labs(x = "Status_BMD", y = "Val") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_BMD vs Val", x = "Status_BMD", y = "Val")
-p
-
-by(Val, Status_BMD, shapiro.test)
-kruskal.test(Val, Status_BMD, rm.na=TRUE)
-pairwise.wilcox.test(Val, Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
-
-## Status BMD vs Citrate ##################################################################################
-p <- ggplot(ds, aes(x = Status_BMD, y = Citrate, na.rm = TRUE, fill = Status_BMD)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Citrate, c(0, 0.9) * 1.05, na.rm = TRUE)) +
-  labs(x = "Status_BMD", y = "Citrate") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_BMD vs Citrate", x = "Status_BMD", y = "Citrate")
-p
-
-by(Citrate, Status_BMD, shapiro.test)
-kruskal.test(Citrate, Status_BMD, rm.na=TRUE)
-pairwise.wilcox.test(Citrate, Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
-
-## Status BMD vs Leu ######################################################################################
+## Status BMD vs Tyr ######################################################################################
 p <- ggplot(ds, aes(x = Status_BMD, y = Leu, na.rm = TRUE, fill = Status_BMD)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Leu, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Leu, c(0, 0.9) * 1.10, na.rm = TRUE)) +
   labs(x = "Status_BMD", y = "Leu") +
   theme(
     text = element_text(size = 20),
@@ -518,73 +415,9 @@ p <- ggplot(ds, aes(x = Status_BMD, y = Leu, na.rm = TRUE, fill = Status_BMD)) +
   labs(title = "Status_BMD vs Leu", x = "Status_BMD", y = "Leu")
 p
 
-by(Leu, Status_BMD, shapiro.test)
-kruskal.test(Leu, Status_BMD, rm.na=TRUE)
-pairwise.wilcox.test(Leu, Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
-
-## Status BMD vs TotalBCAA ################################################################################
-p <- ggplot(ds, aes(x = Status_BMD, y = TotalBCAA, na.rm = TRUE, fill = Status_BMD)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$TotalBCAA, c(0, 0.9) * 1.10, na.rm = TRUE)) +
-  labs(x = "Status_BMD", y = "TotalBCAA") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_BMD vs TotalBCAA", x = "Status_BMD", y = "TotalBCAA")
-p
-
-by(TotalBCAA, Status_BMD, shapiro.test)
-kruskal.test(TotalBCAA, Status_BMD, rm.na=TRUE)
-pairwise.wilcox.test(TotalBCAA, Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
-
-## Status BMD vs Ile ######################################################################################
-p <- ggplot(ds, aes(x = Status_BMD, y = Ile, na.rm = TRUE, fill = Status_BMD)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Ile, c(0, 0.9) * 1.05, na.rm = TRUE)) +
-  labs(x = "Status_BMD", y = "Ile") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_BMD vs Ile", x = "Status_BMD", y = "Ile")
-p
-
-by(Ile, Status_BMD, shapiro.test)
-kruskal.test(Ile, Status_BMD, rm.na=TRUE)
-pairwise.wilcox.test(Ile, Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
-
-## Status BMD vs Phe ######################################################################################
-p <- ggplot(ds, aes(x = Status_BMD, y = Phe, na.rm = TRUE, fill = Status_BMD)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Phe, c(0, 0.9) * 1.06, na.rm = TRUE)) +
-  labs(x = "Status_BMD", y = "Phe") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_BMD vs Phe", x = "Status_BMD", y = "Phe")
-p
-
-by(Phe, Status_BMD, shapiro.test)
-kruskal.test(Phe, Status_BMD, rm.na=TRUE)
-pairwise.wilcox.test(Phe, Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
-
-## Status BMD vs Tyr ######################################################################################
-p <- ggplot(ds, aes(x = Status_BMD, y = Tyr, na.rm = TRUE, fill = Status_BMD)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Tyr, c(0, 0.9) * 1.10, na.rm = TRUE)) +
-  labs(x = "Status_BMD", y = "Tyr") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "Status_BMD vs Tyr", x = "Status_BMD", y = "Tyr")
-p
-
-by(Tyr, Status_BMD, shapiro.test)
-kruskal.test(Tyr, Status_BMD, rm.na=TRUE)
-pairwise.wilcox.test(Tyr, Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+by(ds$Leu, ds$Status_BMD, shapiro.test)
+kruskal.test(ds$Leu, ds$Status_BMD, rm.na=TRUE)
+pairwise.wilcox.test(ds$Leu, ds$Status_BMD, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
 
 
 ## Lumbar Spine ###########################################################################################
@@ -605,39 +438,24 @@ ggplot(data = ds.m, aes(x=LS_status, y=value)) +
   geom_boxplot(aes(fill = LS_status)) + facet_wrap( ~ variable, ncol = 8, scales="free") + ggtitle("Lumbar Spine vs Metabolites - 3")
 
 ## Most significant metabolites vs LS Status (without outliers) ##########################################
-## LS status vs LDLsize ##################################################################################
-p <- ggplot(ds, aes(x = LS_status, y = LDLsize, na.rm = TRUE, fill = LS_status)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$LDLsize, c(0, 0.9) * 1.11, na.rm = TRUE)) +
-  labs(x = "LS_status", y = "LDLsize") +
+## LS status vs Glucose ##################################################################################
+p <- ggplot(ds, aes(x = LS_status, y = Glucose, na.rm = TRUE, fill = LS_status)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Glucose, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  labs(x = "LS_status", y = "Glucose") +
   theme(
     text = element_text(size = 20),
     plot.title = element_text(hjust = 0.5),
     panel.background = element_blank(),
     axis.line = element_line("darkgrey")) +
-  labs(title = "LS_status vs LDLsize", x = "LS_status", y = "LDLsize")
+  labs(title = "LS_status vs Glucose", x = "LS_status", y = "Glucose")
 p
 
-by(LDLsize, LS_status, shapiro.test)
-kruskal.test(LDLsize, LS_status, rm.na=TRUE)
-pairwise.wilcox.test(LDLsize, LS_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
-
-p <- ggplot(ds, aes(x = LS_status, y = Citrate, na.rm = TRUE, fill = LS_status)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Citrate, c(0, 0.9) * 1.08, na.rm = TRUE)) +
-  labs(x = "LS_status", y = "Citrate") +
-  theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
-    panel.background = element_blank(),
-    axis.line = element_line("darkgrey")) +
-  labs(title = "LS_status vs Citrate", x = "LS_status", y = "Citrate")
-p
-
-by(Citrate, LS_status, shapiro.test)
-kruskal.test(Citrate, LS_status, rm.na=TRUE)
-pairwise.wilcox.test(Citrate, LS_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+by(ds$Glucose, ds$LS_status, shapiro.test)
+kruskal.test(ds$Glucose, ds$LS_status, rm.na=TRUE)
+pairwise.wilcox.test(ds$Glucose, ds$LS_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
 
 p <- ggplot(ds, aes(x = LS_status, y = His, na.rm = TRUE, fill = LS_status)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$His, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$His, c(0, 0.9) * 1.08, na.rm = TRUE)) +
   labs(x = "LS_status", y = "His") +
   theme(
     text = element_text(size = 20),
@@ -647,9 +465,24 @@ p <- ggplot(ds, aes(x = LS_status, y = His, na.rm = TRUE, fill = LS_status)) +
   labs(title = "LS_status vs His", x = "LS_status", y = "His")
 p
 
-by(His, LS_status, shapiro.test)
-kruskal.test(His, LS_status, rm.na=TRUE)
-pairwise.wilcox.test(His, LS_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+by(ds$His, ds$LS_status, shapiro.test)
+kruskal.test(ds$His, ds$LS_status, rm.na=TRUE)
+pairwise.wilcox.test(ds$His, ds$LS_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+
+p <- ggplot(ds, aes(x = LS_status, y = Ile, na.rm = TRUE, fill = LS_status)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Ile, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  labs(x = "LS_status", y = "Ile") +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5),
+    panel.background = element_blank(),
+    axis.line = element_line("darkgrey")) +
+  labs(title = "LS_status vs Ile", x = "LS_status", y = "Ile")
+p
+
+by(ds$Ile, ds$LS_status, shapiro.test)
+kruskal.test(ds$Ile, ds$LS_status, rm.na=TRUE)
+pairwise.wilcox.test(ds$Ile, ds$LS_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
 
 
 ## Total Hip ##############################################################################################
@@ -670,37 +503,37 @@ ggplot(data = ds.m, aes(x=TH_status, y=value)) +
   geom_boxplot(aes(fill = TH_status)) + facet_wrap( ~ variable, ncol = 8, scales="free") + ggtitle("Total Hip vs Metabolites - 3")
 
 ## Most significant metabolites vs TH Status (without outliers) ###########################################
-## TH status vs VLDLsize ##################################################################################
-p <- ggplot(ds, aes(x = TH_status, y = VLDLsize, na.rm = TRUE, fill = TH_status)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$VLDLsize, c(0, 0.9) * 1.11, na.rm = TRUE)) +
-  labs(x = "TH_status", y = "VLDLsize") +
+## TH status vs Gly #######################################################################################
+p <- ggplot(ds, aes(x = TH_status, y = Gly, na.rm = TRUE, fill = TH_status)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Gly, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  labs(x = "TH_status", y = "Gly") +
   theme(
     text = element_text(size = 20),
     plot.title = element_text(hjust = 0.5),
     panel.background = element_blank(),
     axis.line = element_line("darkgrey")) +
-  labs(title = "TH_status vs VLDLsize", x = "TH_status", y = "VLDLsize")
+  labs(title = "TH_status vs Gly", x = "TH_status", y = "Gly")
 p
 
-by(VLDLsize, TH_status, shapiro.test)
-kruskal.test(VLDLsize, TH_status, rm.na=TRUE)
-pairwise.wilcox.test(VLDLsize, TH_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+by(ds$Gly, ds$TH_status, shapiro.test)
+kruskal.test(ds$Gly, ds$TH_status, rm.na=TRUE)
+pairwise.wilcox.test(ds$Gly, ds$TH_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
 
-## TH status vs LDLsize #####################################################################################
-p <- ggplot(ds, aes(x = TH_status, y = LDLsize, na.rm = TRUE, fill = TH_status)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$LDLsize, c(0, 0.9) * 1.11, na.rm = TRUE)) +
-  labs(x = "TH_status", y = "LDLsize") +
+## TH status vs Acetoacetate ##############################################################################
+p <- ggplot(ds, aes(x = TH_status, y = Acetoacetate, na.rm = TRUE, fill = TH_status)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Acetoacetate, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  labs(x = "TH_status", y = "Acetoacetate") +
   theme(
     text = element_text(size = 20),
     plot.title = element_text(hjust = 0.5),
     panel.background = element_blank(),
     axis.line = element_line("darkgrey")) +
-  labs(title = "TH_status vs LDLsize", x = "TH_status", y = "LDLsize")
+  labs(title = "TH_status vs Acetoacetate", x = "TH_status", y = "Acetoacetate")
 p
 
-by(LDLsize, TH_status, shapiro.test)
-kruskal.test(LDLsize, TH_status, rm.na=TRUE)
-pairwise.wilcox.test(LDLsize, TH_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+by(ds$Acetoacetate, ds$TH_status, shapiro.test)
+kruskal.test(ds$Acetoacetate, ds$TH_status, rm.na=TRUE)
+pairwise.wilcox.test(ds$Acetoacetate, ds$TH_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
 
 
 ## Femoral Neck ###########################################################################################
@@ -721,34 +554,34 @@ ggplot(data = ds.m, aes(x=FN_status, y=value)) +
   geom_boxplot(aes(fill = FN_status)) + facet_wrap( ~ variable, ncol = 8, scales="free") + ggtitle("Femoral Neck vs Metabolites - 3")
 
 ## Most significant metabolites vs FN Status (without outliers) ########################################
-## FN status vs VLDLsize ###############################################################################
-p <- ggplot(ds, aes(x = FN_status, y = VLDLsize, na.rm = TRUE, fill = FN_status)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$VLDLsize, c(0, 0.9) * 1.11, na.rm = TRUE)) +
-  labs(x = "FN_status", y = "VLDLsize") +
+## FN status vs Sphingomyelins #########################################################################
+p <- ggplot(ds, aes(x = FN_status, y = Sphingomyelins, na.rm = TRUE, fill = FN_status)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$Sphingomyelins, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  labs(x = "FN_status", y = "Sphingomyelins") +
   theme(
     text = element_text(size = 20),
     plot.title = element_text(hjust = 0.5),
     panel.background = element_blank(),
     axis.line = element_line("darkgrey")) +
-  labs(title = "FN_status vs VLDLsize", x = "FN_status", y = "VLDLsize")
+  labs(title = "FN_status vs Sphingomyelins", x = "FN_status", y = "Sphingomyelins")
 p
 
-by(VLDLsize, FN_status, shapiro.test)
-kruskal.test(VLDLsize, FN_status, rm.na=TRUE)
-pairwise.wilcox.test(VLDLsize, FN_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+by(ds$Sphingomyelins, ds$FN_status, shapiro.test)
+kruskal.test(ds$Sphingomyelins, ds$FN_status, rm.na=TRUE)
+pairwise.wilcox.test(ds$Sphingomyelins, ds$FN_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
 
-## FN status vs LDLsize ###############################################################################
-p <- ggplot(ds, aes(x = FN_status, y = LDLsize, na.rm = TRUE, fill = FN_status)) +
-  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$LDLsize, c(0, 0.9) * 1.11, na.rm = TRUE)) +
-  labs(x = "FN_status", y = "LDLsize") +
+## FN status vs SFA #######################################################################################
+p <- ggplot(ds, aes(x = FN_status, y = SFA, na.rm = TRUE, fill = FN_status)) +
+  geom_boxplot( , na.rm = TRUE, outlier.shape = NA) + coord_cartesian(ylim = quantile(ds$SFA, c(0, 0.9) * 1.11, na.rm = TRUE)) +
+  labs(x = "FN_status", y = "SFA") +
   theme(
     text = element_text(size = 20),
     plot.title = element_text(hjust = 0.5),
     panel.background = element_blank(),
     axis.line = element_line("darkgrey")) +
-  labs(title = "FN_status vs LDLsize", x = "FN_status", y = "LDLsize")
+  labs(title = "FN_status vs SFA", x = "FN_status", y = "SFA")
 p
 
-by(LDLsize, FN_status, shapiro.test)
-kruskal.test(LDLsize, FN_status, rm.na=TRUE)
-pairwise.wilcox.test(LDLsize, FN_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
+by(ds$SFA, ds$FN_status, shapiro.test)
+kruskal.test(ds$SFA, ds$FN_status, rm.na=TRUE)
+pairwise.wilcox.test(ds$SFA, ds$FN_status, p.adjust.method = "bonferroni", paired = FALSE, alternative= "two.sided")
