@@ -1,5 +1,5 @@
 ## IMPORTANT NOTE #######################################################################################
-## Execute mb_data_filtering.R - From line 1 to 32 and 44 to 51 #########################################
+## Execute mb_data_filtering.R - From line 1 to 31 and 42 to 50 #########################################
 #########################################################################################################
 
 # Load necessary libraries
@@ -20,7 +20,7 @@ ds_new <- data.frame(
   dataset['Status_Fractures'], dataset['Gender'], dataset['Smoking'],  dataset['Alcohol'], norm_scale['Age'], norm_scale['BMI'],
   norm_scale['Glucose'], norm_scale['Acetate'], norm_scale['XL.HDL.L'], norm_scale['Lactate'], norm_scale['GlycA'],
   norm_scale['XL.HDL.PL'], norm_scale['XL.HDL.C'], norm_scale['XL.HDL.FC'], norm_scale['XL.HDL.CE'],
-  norm_scale['His'], norm_scale['XL.HDL.P'], norm_scale['Gly'])
+  norm_scale['His'], norm_scale['XL.HDL.P'], norm_scale['Creatinine'])
 
 # Filter by Gender - get Males only
 ds_new <- ds_new[ds_new$Gender == 1, ]
@@ -35,6 +35,7 @@ summary(ds_new$Status_Fractures)
 
 # Remove columns which have more than 25 NAs
 ds_new <- ds_new[, colSums(is.na(ds_new)) <= 24]
+# Remove rows with NAs
 ds.noNA <- ds_new %>% na.omit()
 
 cat("Rows:", nrow(ds.noNA),", Columns:", ncol(ds.noNA),"\n")
@@ -53,7 +54,8 @@ test  <- balanced.ds[-in_rows, ]
 attach(train)
 
 mult_result <- glm(Status_Fractures ~
-                     Age + BMI + Acetate + XL.HDL.L + Lactate + GlycA + XL.HDL.PL + XL.HDL.C + XL.HDL.FC + XL.HDL.CE + His + XL.HDL.P + Gly,
+#                     Age + BMI +
+                     Acetate + XL.HDL.L + Lactate + GlycA + XL.HDL.PL + XL.HDL.C + XL.HDL.FC + XL.HDL.CE + His + XL.HDL.P,
                    family = 'binomial', data=train)
 mult_result
 
@@ -61,16 +63,16 @@ predict <- predict(mult_result, newdata=test, type="response")
 predict.cat <- cut(predict,breaks=c(0, 0.5, 1), labels=c("No fractures", "Fractures"))
 summary(predict.cat)
 summary(test$Status_Fractures)
-table(predict.cat, test$Status_Fractures)
+table(test$Status_Fractures, predict.cat)
 
 svmfit  <- svm(Status_Fractures ~
 #                 Age + BMI +
                  Acetate + XL.HDL.L + Lactate + GlycA + XL.HDL.PL + XL.HDL.C + XL.HDL.FC + XL.HDL.CE + His + XL.HDL.P,
-               data = train, kernel = "linear", cost = 10, scale = FALSE)
+               data = train, kernel = "radial", cost = 10, scale = FALSE)
 
 predict <- predict(svmfit, newdata=test, type="response")
 actual  <- test$Status_Fractures
-confusionMatrix(table(predict, actual))
+confusionMatrix(table(actual, predict))
 
 
 ###################################################################################################
