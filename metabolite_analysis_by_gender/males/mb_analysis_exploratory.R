@@ -42,7 +42,8 @@ write.csv(shapiro_result, "metabone-R/results/gender/males/shapiro.csv", row.nam
 ## Pearson's Correlation Analysis
 ##  - p-value < 0.05 -> Correlation is significant
 ##  - p-value > 0.05 -> No correlation
-nd_ds <- ds[, c(1:22, 30:32, 34, 37, 64:65, 71:82, 84, 86:91, 94:102, 107:110, 113:114, 121, 149, 156:157, 163, 170, 177, 179:180, 183)]
+#nd_ds <- ds[, c(1:22, 30:32, 34, 37, 64:65, 71:82, 84, 86:91, 94:102, 107:110, 113:114, 121, 149, 156:157, 163, 170, 177, 179:180, 183)]
+nd_ds <- ds[, c(1:22, 23:29, 33, 35:36, 38:63, 66:70, 83, 85, 92:93, 103:106, 111:112, 115:120, 122:148, 150:155, 158:162, 164:169, 171:176, 178, 181:182, 184:191)]
 vars <- data.frame(v1=names(nd_ds[8]), v2=names(nd_ds[,23:ncol(nd_ds)]))
 tmp_ds <- nd_ds[,c(8, 23:ncol(nd_ds))]
 tmp_ds <- sapply(tmp_ds, as.numeric)
@@ -54,6 +55,18 @@ write.csv(pearson_result, "metabone-R/results/gender/males/pearsonFractureStatus
 # corrs[4] <- p.adjust(corrs$p.value, method = "bonferroni", n = length(corrs$p.value))
 # pearson_result <- corrs[2:5]
 # write.csv(pearson_result, "metabone-R/results/gender/males/pearsonFractureStatusvsMetabolitesAdjusted.csv", row.names = TRUE)
+
+## Pearson's Correlation Analysis on all vars
+##  - p-value < 0.05 -> Correlation is significant
+##  - p-value > 0.05 -> No correlation
+nd_ds <- ds
+vars <- data.frame(v1=names(nd_ds[8]), v2=names(nd_ds[,23:ncol(nd_ds)]))
+tmp_ds <- nd_ds[,c(8, 23:ncol(nd_ds))]
+tmp_ds <- sapply(tmp_ds, as.numeric)
+# Apply corrFunc to all rows of vars
+corrs <- do.call(rbind, mapply(corrFunc, vars[,1], vars[,2], MoreArgs=list(data=tmp_ds, method="pearson"), SIMPLIFY=FALSE))
+pearson_result <- corrs[2:5]
+write.csv(pearson_result, "metabone-R/results/gender/males/pearsonFractureStatusvsMetabolites2.csv", row.names = TRUE)
 
 ## Mann-Whitney/Kruskall Wallis Analysis
 ## - p-value < 0.05 -> Correlation is significant
