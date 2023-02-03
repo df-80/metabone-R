@@ -51,11 +51,11 @@ in_rows <- sample(seq_len(nrow(balanced.ds)), size = train_size, replace = FALSE
 
 train <- balanced.ds[in_rows, ]
 test  <- balanced.ds[-in_rows, ]
-attach(train)
+#attach(train)
 
-mult_result <- glm(Status_Fractures ~
+mult_result <- glm(train$Status_Fractures ~
 #                     Age + BMI +
-                     Acetate + XL.HDL.L + Lactate + GlycA + XL.HDL.PL + XL.HDL.C + XL.HDL.FC + XL.HDL.CE + His + XL.HDL.P,
+                     Age + BMI + Acetate + Lactate + GlycA + XL.HDL.PL + XL.HDL.C + XL.HDL.FC  + His,
                    family = 'binomial', data=train)
 mult_result
 
@@ -66,8 +66,7 @@ summary(test$Status_Fractures)
 table(test$Status_Fractures, predict.cat)
 
 svmfit  <- svm(Status_Fractures ~
-#                 Age + BMI +
-                 Acetate + XL.HDL.L + Lactate + GlycA + XL.HDL.PL + XL.HDL.C + XL.HDL.FC + XL.HDL.CE + His + XL.HDL.P,
+                 Age + BMI + Acetate + Lactate + GlycA + XL.HDL.PL + XL.HDL.C + XL.HDL.FC  + His,
                data = train, kernel = "radial", cost = 10, scale = FALSE)
 
 predict <- predict(svmfit, newdata=test, type="response")
@@ -114,12 +113,11 @@ in_rows <- sample(seq_len(nrow(balanced.ds)), size = train_size, replace = FALSE
 
 train <- balanced.ds[in_rows, ]
 test  <- balanced.ds[-in_rows, ]
-attach(train)
+#attach(train)
 
 ## Multinomial Regression #############################################################################
-mult_result <- multinom(train$Status_BMD ~
-                          Age + BMI + XXL.VLDL.TG + Val + Leu + TotalBCAA + His + XXL.VLDL.PL +
-                            XXL.VLDL.L + VLDLsize + XXL.VLDL.P + Ile + XXL.VLDL.C + XXL.VLDL.FC + Phe,
+mult_result <- multinom(Status_BMD ~
+                          Age + BMI + Leu + His + XXL.VLDL.P + Ile + XXL.VLDL.C + XXL.VLDL.FC,
                         maxit = 100000, data=train)
 
 summary(mult_result)
@@ -130,8 +128,8 @@ actual <- test$Status_BMD
 confusionMatrix(table(actual, predict))
 
 ## SVM ################################################################################################
-svmfit <- svm(train$Status_BMD ~
-                Age + BMI + Val + Leu + TotalBCAA + His + XXL.VLDL.PL + XXL.VLDL.L + VLDLsize + Ile + Phe,
+svmfit <- svm(Status_BMD ~
+                Age + BMI + Val + Leu  + His + VLDLsize + Ile + XXL.VLDL.C + XXL.VLDL.FC,
                data = train, kernel='linear', cost = 10, scale = TRUE)
 
 predict <- predict(svmfit, newdata=test, type="response")
