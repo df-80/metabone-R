@@ -3,3 +3,6 @@ results
 
 # Files to ignore
 Statistical Analysis of Metabolic Data.pdf
+
+# Ignore Intellij idea files
+.idea/
